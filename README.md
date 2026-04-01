@@ -29,3 +29,4 @@ A simple web-based **Doctor Appointment Booking System** that allows patients to
 ## 🎯 Purpose
 
 This project is designed to simplify the doctor appointment booking process by providing a quick and user-friendly interface, reducing waiting time and improving patient convenience.
+GitHub Pages enabled
