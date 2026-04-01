@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Our Services | MediCare</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  <!-- Vue.js -->
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.37/dist/vue.global.js"></script>
+
+  <link rel="stylesheet" href="style1.css">
+</head>
+<body>
+  <div id="app">
+    <header class="bg-white shadow-sm sticky-top">
+      <div class="container d-flex justify-content-between align-items-center py-3">
+        <div class="d-flex align-items-center">
+          <i class="fas fa-heartbeat text-success fs-3 me-2"></i>
+          <h1 class="h4 m-0">MediCare</h1>
+        </div>
+        <nav>
+          <ul class="nav">
+            <li class="nav-item"><a class="nav-link text-dark" href="Hospital.html">Home</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="Doctors.html">Doctors</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="Services.html">Services</a></li>
+            <li class="nav-item"><a class="nav-link text-dark" href="Contact.html">Contact</a></li>
+          </ul>
+        </nav>
+        <button class="btn btn-outline-success" @click="toggleTheme">
+          <i :class="[darkMode ? 'fa-sun' : 'fa-moon']"></i>
+        </button>
+      </div>
+    </header>
+
+    <main class="container my-5">
+      <section class="text-center mb-5">
+        <h2 class="text-success">Our Medical Services</h2>
+        <p class="lead">Explore comprehensive healthcare services provided by specialists using the latest medical technology.</p>
+        
+        <div class="row justify-content-center mb-4">
+          <div class="col-md-6">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search services..." v-model="searchQuery">
+              <button class="btn btn-success" type="button" @click="filterServices">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div class="col" v-for="(service, index) in filteredServices" :key="index">
+          <div class="card h-100 text-center service-card" 
+               @click="selectService(service)"
+               :class="{ 'border-success shadow-lg': selectedService === service.name }">
+            <div class="card-body">
+              <i :class="[service.icon, 'fa-3x', 'text-success', 'mb-3']"></i>
+              <h5 class="card-title">{{ service.name }}</h5>
+              <p class="card-text">{{ service.description }}</p>
+              <p class="fw-bold text-success">${{ service.priceRange[0] }} - ${{ service.priceRange[1] }}</p>
+              
+              <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-sm btn-outline-success" @click.stop="bookService(service)">
+                  <i class="fas fa-calendar-alt me-1"></i> Book Now
+                </button>
+                <button class="btn btn-sm btn-outline-primary" @click.stop="toggleLike(index)">
+                  <i :class="[service.liked ? 'fas fa-heart text-danger' : 'far fa-heart']"></i> 
+                  {{ service.likes }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Service Details Section -->
+      <section class="mt-5" v-if="selectedService">
+        <div class="bg-white p-4 rounded shadow">
+          <div class="row">
+            <div class="col-md-8">
+              <h3 class="text-success mb-3">{{ selectedServiceDetails.name }}</h3>
+              <p>{{ selectedServiceDetails.longDescription }}</p>
+              
+              <div class="mt-4">
+                <h5 class="text-success">Common Procedures</h5>
+                <ul>
+                  <li v-for="(procedure, idx) in selectedServiceDetails.procedures" :key="idx">
+                    {{ procedure }}
+                  </li>
+                </ul>
+              </div>
+              
+              <div class="mt-4">
+                <h5 class="text-success">What to Expect</h5>
+                <p>{{ selectedServiceDetails.whatToExpect }}</p>
+              </div>
+            </div>
+            
+            <div class="col-md-4">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title text-success">Quick Facts</h5>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                      <strong>Duration:</strong> {{ selectedServiceDetails.duration }}
+                    </li>
+                    <li class="list-group-item">
+                      <strong>Preparation:</strong> {{ selectedServiceDetails.preparation }}
+                    </li>
+                    <li class="list-group-item">
+                      <strong>Recovery Time:</strong> {{ selectedServiceDetails.recoveryTime }}
+                    </li>
+                    <li class="list-group-item">
+                      <strong>Success Rate:</strong> {{ selectedServiceDetails.successRate }}
+                    </li>
+                  </ul>
+                  
+                  <div class="mt-3 text-center">
+                    <button class="btn btn-success" @click="bookService(selectedServiceDetails)">
+                      <i class="fas fa-calendar-alt me-1"></i> Book This Service
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- FAQ Accordion -->
+          <div class="mt-5">
+            <h5 class="text-success mb-3">Frequently Asked Questions</h5>
+            <div class="accordion" id="serviceFaqAccordion">
+              <div class="accordion-item" v-for="(faq, idx) in selectedServiceDetails.faqs" :key="idx">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                          :data-bs-target="'#faqCollapse' + idx" :aria-expanded="idx === 0">
+                    {{ faq.question }}
+                  </button>
+                </h2>
+                <div :id="'faqCollapse' + idx" class="accordion-collapse collapse" 
+                     :class="{ show: idx === 0 }" data-bs-parent="#serviceFaqAccordion">
+                  <div class="accordion-body">
+                    {{ faq.answer }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Emergency Services Section -->
+      <section class="text-center mt-5">
+        <div class="bg-white p-4 rounded shadow emergency-section">
+          <div class="row align-items-center">
+            <div class="col-md-8 text-start">
+              <h3 class="text-danger mb-3">24/7 Emergency Services</h3>
+              <p class="mb-3">Our emergency department is staffed round the clock with experienced specialists ready to handle any medical crisis.</p>
+              <p>
+                <i class="fas fa-phone-alt me-2"></i>
+                <strong class="emergency-contact">Emergency Hotline: +91 7020337705</strong>
+              </p>
+            </div>
+            <div class="col-md-4">
+              <img src="https://images.unsplash.com/photo-1581595219315-a187dd40c322?auto=format&fit=crop&w=300&q=80" 
+                   class="img-fluid rounded" alt="Emergency Services">
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="bg-success text-white py-4 mt-5">
+      <div class="container text-center">
+        <p><i class="fas fa-map-marker-alt me-2"></i>123 DTDC Near Dattawadi Pune</p>
+        <p><i class="fas fa-phone me-2"></i>+91 7020337705</p>
+        <p><i class="fas fa-envelope me-2"></i>info@medicare.com</p>
+        <div class="social-icons mt-3">
+          <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+        <hr>
+        <p class="mb-0">&copy; 2025 MediCare. All rights reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    const { createApp, ref, computed, watch } = Vue;
+    
+    createApp({
+      setup() {
+        const darkMode = ref(false);
+        const searchQuery = ref('');
+        const selectedService = ref('');
+        
+        const services = ref([
+          {
+            name: 'Cardiology',
+            icon: 'fas fa-heartbeat',
+            description: 'Comprehensive heart care including diagnostics, treatment, and rehabilitation.',
+            priceRange: [150, 500],
+            likes: 245,
+            liked: false,
+            longDescription: 'Our cardiology department provides state-of-the-art care for all heart conditions. We offer advanced diagnostic tools, minimally invasive procedures, and comprehensive rehabilitation programs.',
+            procedures: [
+              'Electrocardiogram (ECG)',
+              'Echocardiogram',
+              'Stress Testing',
+              'Cardiac Catheterization',
+              'Angioplasty and Stenting'
+            ],
+            whatToExpect: 'Your visit will typically begin with a consultation, followed by diagnostic tests if needed. Treatment options will be discussed based on your results.',
+            duration: '30-90 minutes depending on procedure',
+            preparation: 'Fasting for 8 hours before most tests',
+            recoveryTime: 'Varies from same-day to several weeks',
+            successRate: '95% for most procedures',
+            faqs: [
+              {
+                question: 'How often should I get my heart checked?',
+                answer: 'Adults over 40 should have annual heart checkups, or more frequently if risk factors exist.'
+              },
+              {
+                question: 'Are these procedures covered by insurance?',
+                answer: 'Most diagnostic and therapeutic procedures are covered, but check with your provider.'
+              }
+            ]
+          },
+          {
+            name: 'Neurology',
+            icon: 'fas fa-brain',
+            description: 'Diagnosis and treatment of brain and nervous system disorders.',
+            priceRange: [200, 600],
+            likes: 189,
+            liked: false,
+            longDescription: 'Our neurology specialists provide expert care for conditions affecting the brain, spinal cord, and peripheral nerves using the latest diagnostic and treatment technologies.',
+            procedures: [
+              'EEG (Electroencephalogram)',
+              'EMG (Electromyography)',
+              'Nerve Conduction Studies',
+              'Botulinum Toxin Therapy',
+              'Deep Brain Stimulation'
+            ],
+            whatToExpect: 'Neurological exams may include physical tests, imaging studies, and electrical activity measurements to diagnose your condition accurately.',
+            duration: '45-120 minutes',
+            preparation: 'Some tests require no special preparation',
+            recoveryTime: 'Typically minimal',
+            successRate: 'Varies by condition (80-95%)',
+            faqs: [
+              {
+                question: 'What are signs I should see a neurologist?',
+                answer: 'Persistent headaches, dizziness, numbness, or movement problems warrant evaluation.'
+              }
+            ]
+          },
+          {
+            name: 'Pediatrics',
+            icon: 'fas fa-child',
+            description: 'Comprehensive healthcare for infants, children, and adolescents.',
+            priceRange: [100, 300],
+            likes: 312,
+            liked: false,
+            longDescription: 'Our pediatric services focus on the physical, emotional, and social health of children from birth through young adulthood with specialized care for each developmental stage.',
+            procedures: [
+              'Well-child Visits',
+              'Immunizations',
+              'Developmental Screenings',
+              'Sports Physicals',
+              'Behavioral Consultations'
+            ],
+            whatToExpect: 'Friendly, child-centered environment with specialists trained to make healthcare visits positive experiences for children.',
+            duration: '20-60 minutes',
+            preparation: 'Bring immunization records and list of concerns',
+            recoveryTime: 'None for most visits',
+            successRate: 'Varies by service',
+            faqs: [
+              {
+                question: 'At what age should my child first see a dentist?',
+                answer: 'The first dental visit should occur by age 1 or within 6 months of the first tooth appearing.'
+              }
+            ]
+          },
+          {
+            name: 'Dermatology',
+            icon: 'fas fa-allergies',
+            description: 'Skin care including medical, surgical, and cosmetic treatments.',
+            priceRange: [120, 400],
+            likes: 276,
+            liked: false,
+            longDescription: 'Our dermatologists provide comprehensive care for skin conditions ranging from acne to skin cancer, along with cosmetic procedures to enhance your appearance.',
+            procedures: [
+              'Skin Cancer Screening',
+              'Acne Treatment',
+              'Psoriasis Management',
+              'Cosmetic Injectables',
+              'Laser Treatments'
+            ],
+            whatToExpect: 'Thorough skin examination with discussion of treatment options tailored to your specific needs and goals.',
+            duration: '15-60 minutes',
+            preparation: 'Come with clean skin, no makeup',
+            recoveryTime: 'Minimal to several days',
+            successRate: '85-98% depending on condition',
+            faqs: [
+              {
+                question: 'How often should I get a skin cancer screening?',
+                answer: 'Annual screenings are recommended, or more frequently if you have risk factors.'
+              }
+            ]
+          },
+          {
+            name: 'Orthopedics',
+            icon: 'fas fa-bone',
+            description: 'Care for musculoskeletal system including bones, joints, and muscles.',
+            priceRange: [180, 550],
+            likes: 201,
+            liked: false,
+            longDescription: 'Our orthopedic specialists provide comprehensive care for injuries and conditions affecting the musculoskeletal system, from fractures to joint replacements.',
+            procedures: [
+              'Fracture Care',
+              'Joint Replacement',
+              'Arthroscopic Surgery',
+              'Spinal Procedures',
+              'Sports Medicine Treatments'
+            ],
+            whatToExpect: 'Evaluation typically includes physical examination and imaging studies to determine the best treatment approach for your condition.',
+            duration: 'Varies widely by procedure',
+            preparation: 'Wear comfortable clothing that allows access to affected area',
+            recoveryTime: 'From days to months depending on procedure',
+            successRate: '90-98% for most procedures',
+            faqs: [
+              {
+                question: 'When is surgery recommended for joint pain?',
+                answer: 'When conservative treatments fail to provide adequate relief and quality of life is significantly impacted.'
+              }
+            ]
+          },
+          {
+            name: 'Ophthalmology',
+            icon: 'fas fa-eye',
+            description: 'Eye care including vision correction and disease treatment.',
+            priceRange: [90, 350],
+            likes: 231,
+            liked: false,
+            longDescription: 'Our ophthalmologists provide complete eye care services from routine vision exams to complex surgical procedures, using the latest diagnostic and treatment technologies.',
+            procedures: [
+              'Comprehensive Eye Exams',
+              'Cataract Surgery',
+              'LASIK and PRK',
+              'Glaucoma Treatment',
+              'Retinal Procedures'
+            ],
+            whatToExpect: 'Detailed vision testing and eye health evaluation followed by discussion of treatment options if any issues are found.',
+            duration: '30-90 minutes',
+            preparation: 'Bring current glasses/contacts and a list of medications',
+            recoveryTime: 'Same day to several weeks',
+            successRate: '95%+ for most procedures',
+            faqs: [
+              {
+                question: 'How often should adults get eye exams?',
+                answer: 'Every 2 years for adults with no symptoms, annually for those over 60 or with risk factors.'
+              }
+            ]
+          }
+        ]);
+
+        const filteredServices = computed(() => {
+          if (!searchQuery.value) return services.value;
+          return services.value.filter(service => 
+            service.name.toLowerCase().includes(searchQuery.value.toLowerCase()) || 
+            service.description.toLowerCase().includes(searchQuery.value.toLowerCase())
+          );
+        });
+
+        const selectedServiceDetails = computed(() => {
+          return services.value.find(s => s.name === selectedService.value) || {};
+        });
+
+        const toggleTheme = () => {
+          darkMode.value = !darkMode.value;
+          document.body.classList.toggle('dark-theme');
+        };
+
+        const selectService = (service) => {
+          selectedService.value = service.name;
+        };
+
+        const bookService = (service) => {
+          console.log('Booking service:', service.name);
+          // In a real app, this would redirect to booking page or show a modal
+          alert(`Booking request for ${service.name} has been initiated. We will contact you shortly.`);
+        };
+
+        const toggleLike = (index) => {
+          services.value[index].liked = !services.value[index].liked;
+          services.value[index].likes += services.value[index].liked ? 1 : -1;
+        };
+
+        const filterServices = () => {
+          // Computed property handles the filtering automatically
+        };
+
+        return {
+          darkMode,
+          searchQuery,
+          services,
+          filteredServices,
+          selectedService,
+          selectedServiceDetails,
+          toggleTheme,
+          selectService,
+          bookService,
+          toggleLike,
+          filterServices
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+# Ignore virtual environments
+venv/
+.venv/
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore instance and config files
+instance/
+*.db
+*.sqlite3
+
+# Ignore build and deployment folders
+build/
+dist/
+*.egg-info/
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore environment files
+.env
+.env.*
+
+# Ignore VS Code and IDE settings
+.vscode/
+.idea/
+
+# Ignore GitHub Actions workflow cache
+.github/workflows/*.cache
+
+# Ignore node or front-end build (if added later)
+node_modules/
+
+# Allow static and template files
+!static/
+!templates/
+
+# Allow your HTML, CSS, and Python files
+!*.html
+!*.css
+!*.py
