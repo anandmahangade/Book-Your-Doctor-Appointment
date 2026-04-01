@@ -21,7 +21,7 @@ A simple web-based **Doctor Appointment Booking System** that allows patients to
 ## 💻 How to Run
 1. Clone the repository  
    ```bash
-   git clone https://github.com/USERNAME/REPOSITORY_NAME.git
+   git clone https://github.com/anandmahangade/Book-Your-Doctor-Appointment.git
 
 2.Open index.html in your browser
 (No backend required)
